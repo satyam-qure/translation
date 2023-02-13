@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/translation@v2
+        uses: actions/checkout@main
 
       - name: Download strings from Localazy
         uses: localazy/download@v1
