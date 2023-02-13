@@ -26,7 +26,7 @@ jobs:
           write_key: ${{ secrets.LOCALAZY_WRITE_KEY }}
 
       - name: Commit and push changes
-        uses: actions/translation@v2
+        uses: actions/git-client@v2
         with:
           args: commit -a -m "Update Localazy strings"
         env:
