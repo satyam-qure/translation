@@ -1,5 +1,5 @@
 {
-  "Dashboard": "Panel",
-  "Description": "Descripción",
-  "Worklist": "lista de trabajo"
+  "dashboard": "Panel",
+  "description": "Descripción",
+  "worklist": "lista de trabajo"
 }
