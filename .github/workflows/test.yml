@@ -1,0 +1,33 @@
+name: Localazy CI/CD
+
+on: 
+  push:
+    branches:
+    - main
+
+jobs:
+  localazy-download-and-upload:
+    name: Download and Upload strings from/to Localazy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download strings from Localazy
+        uses: localazy/download@v1
+        with:
+          read_key: ${{ secrets.LOCALAZY_READ_KEY }}
+          write_key: ${{ secrets.LOCALAZY_WRITE_KEY }}
+
+      - name: Upload strings to Localazy
+        uses: localazy/upload@v1
+        with:
+          read_key: ${{ secrets.LOCALAZY_READ_KEY }}
+          write_key: ${{ secrets.LOCALAZY_WRITE_KEY }}
+
+      - name: Commit and push changes
+        uses: actions/git-client@v2
+        with:
+          args: commit -a -m "Update Localazy strings"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
