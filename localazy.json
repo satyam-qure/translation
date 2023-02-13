@@ -1,6 +1,6 @@
 {
-    "readKey": "a7902073872013840669-d7ba2a9498e97af45903aa109fec265a3ba6e70d6bad5e9012ce39321144e646",
-    "writeKey": "a7902073872013840669-a49a732e11b3fc44a62943e2a60c250cdc63f495c92632919047f1129573c4ed",
+    "readKey": "read-key",
+    "writeKey": "write-key",
   
     "upload": {  
       "type": "json",
@@ -8,6 +8,6 @@
     },
     
     "download": {
-      "files": "/locales/es.json"
+      "files": "/locales/${lang}.json"
     }
   }
