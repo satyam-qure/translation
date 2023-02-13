@@ -12,5 +12,5 @@ jobs:
       - uses: actions/checkout@v1
       - uses: localazy/upload@v1
         with:
-          read_key: ${{ secrets.LOCALAZY_READ_KEY }}
-          write_key: ${{ secrets.LOCALAZY_WRITE_KEY }}
+          read_key: a7902073872013840669-d7ba2a9498e97af45903aa109fec265a3ba6e70d6bad5e9012ce39321144e646
+          write_key: a7902073872013840669-a49a732e11b3fc44a62943e2a60c250cdc63f495c92632919047f1129573c4ed
