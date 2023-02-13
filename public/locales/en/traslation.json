@@ -2,5 +2,6 @@
   "dashboard": "Dashboard",
   "description": "description",
   "worklist": "Worklist",
-  "new":"New"
+  "new":"New",
+  "test":"test"
 }
