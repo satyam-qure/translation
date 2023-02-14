@@ -5,6 +5,8 @@ on:
       - main
     tags:
       - "v*"
+    paths:
+      - "locales/${lang}.json"
 
 jobs:
   localazy-download-test:
