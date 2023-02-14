@@ -1,11 +1,10 @@
 name: Upload to Localazy
 on:
   push:
-    branch:
+    branches:
       - main
     paths:
       - "locales/en.json"
-
 jobs:
   localazy-upload:
     name: Upload strings to Localazy
