@@ -2,10 +2,10 @@ name: Localazy CI/CD
 
 on:
   push:
-    - branches:
-        - main
-    - paths:
-        - "locales/en.json"
+    branches:
+      - main
+    paths:
+      - "/locales/en.json"
 
 jobs:
   localazy-download-and-upload:
