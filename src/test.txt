@@ -1,0 +1,294 @@
+import classNames from "classnames";
+import { find, get } from "lodash";
+import Image from "next/image";
+import useMedia, { MediaSizes } from "../../hooks/useMedia";
+import { getFormattedDate, getGender } from "../../utils";
+import constants from "../../utils/constants";
+import Store from "../../utils/Store";
+import Tags from "../common/Tags";
+import Icon from "../Icon";
+import ScanStatus from "../ScanStatus";
+import ReportTags from "../ReportTags";
+import getTagsforWorklist from "./utils/utils";
+import { useEffect, useState } from "react";
+
+const PatientCard = (props) => {
+  const {
+    patient,
+    isSelected,
+    unreadMessagesCount,
+    onSelect,
+    worklistConfig,
+    labelMappings,
+    tagsList,
+  } = props;
+  const { latest_study, patient_uid: current_patient_uid } = patient;
+  const isMobile = useMedia([MediaSizes.MOBILE], [true], false);
+  const scanDate = getFormattedDate(latest_study?.scan_date);
+  const createdDate = getFormattedDate(latest_study?.created_at);
+  const uploadSource = get(patient, ["site"], "");
+  const countObj = unreadMessagesCount.find(
+    (c) => c?.patient_uid === current_patient_uid
+  );
+  const unreadCount = get(countObj, ["unread"], 0);
+  const thumbnailUrl = get(latest_study, ["thumbnail_url"], "");
+  const modality = get(
+    latest_study,
+    ["series", "details", "0", "modality"],
+    ""
+  );
+  const aiInference = get(
+    latest_study,
+    ["ai_inference"],
+    constants.AI_INFERENCE.WAITING_FOR_SCAN
+  );
+  const usecase = get(latest_study, ["usecase"], null);
+  const hasReport=get(latest_study, ["report", "userid"], "");
+  const hasAIReport = get(latest_study, ["report", "userid"], "") === "ai";
+  let worklistTags = [];
+  if (aiInference === constants.AI_INFERENCE.NEGATIVE) {
+    const routine_tag = get(constants.ROUTINE_TAGS, [usecase], null);
+    worklistTags = [
+      {
+        value: routine_tag,
+      },
+    ];
+  }
+  if (worklistConfig) {
+    const useCase = patient.latest_study?.usecase;
+    if (useCase) {
+      worklistTags = [
+        ...worklistTags,
+        ...getTagsforWorklist(
+          {
+            findings: get(latest_study, ["findings"], []),
+            lab_results: get(patient, ["lab_confirmations"], []),
+            symptoms: get(patient, ["symptoms"], []),
+            risk_groups: get(patient, ["risk_groups"], []),
+          },
+          worklistConfig.tags,
+          useCase,
+          aiInference
+        ),
+      ];
+    }
+  }
+
+  const openSharing = (e) => {
+    Store.update((s) => {
+      s.sharingPatient = current_patient_uid;
+    });
+    e.stopPropagation();
+  };
+  return (
+    <div
+      onClick={!isSelected ? () => onSelect(current_patient_uid) : null}
+      className={classNames(
+        "bg-gray-100 hover:bg-[#008280] hover:bg-opacity-20  border-gray-200 dark:sm:bg-gray-900 dark:bg-gray-800 dark:hover:!bg-teal-900 dark:border-gray-700 sm:rounded-none cursor-pointer group m-4 border rounded-lg sm:border-0 sm:m-0",
+        {
+          "dark:!bg-gray-700 !bg-gray-300": isSelected,
+        }
+      )}
+    >
+      <div className="flex items-start flex-col sm:flex-row ">
+        <div
+          className={classNames(
+            "relative w-full sm:w-auto flex items-center justify-center sm:ml-4 sm:mt-5",
+            {
+              "bg-black rounded-lg": thumbnailUrl,
+              "bg-gray-200 dark:bg-gray-700 h-14 sm:h-auto sm:bg-transparent":
+                !thumbnailUrl,
+            }
+          )}
+        >
+          {!thumbnailUrl && !isMobile ? (
+            <div
+              className={classNames(
+                "h-[48px] w-[48px] flex items-center justify-center rounded bg-gray-200 group-hover:bg-gray-100 dark:bg-gray-800 dark:group-hover:bg-gray-600",
+                {
+                  "bg-gray-100 dark:!bg-gray-600": isSelected,
+                }
+              )}
+            >
+              <svg
+                className={classNames(
+                  "fill-gray-600 group-hover:fill-gray-400",
+                  {
+                    "!fill-gray-400": isSelected,
+                  }
+                )}
+                width="24"
+                height="25"
+                viewBox="0 0 24 25"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M20.5714 0H3.42857C1.53482 0 0 1.59877 0 3.57143V21.4286C0 23.4012 1.53482 25 3.42857 25H20.5714C22.4652 25 24 23.4012 24 21.4286V3.57143C24 1.59877 22.4625 0 20.5714 0ZM22.2857 21.4286C22.2857 22.4129 21.5164 23.2143 20.5714 23.2143H3.42857C2.48357 23.2143 1.71429 22.4129 1.71429 21.4286V19.6429H22.2857V21.4286ZM7.86964 17.8571C8.22321 16.8192 9.16607 16.0714 10.2857 16.0714H13.7143C14.8323 16.0714 15.7741 16.8192 16.1282 17.8571H7.86964ZM22.2857 17.8571H17.9138C17.4696 15.8203 15.7875 14.2857 13.7143 14.2857H10.2857C8.2125 14.2857 6.48375 15.8192 6.08625 17.8571H1.71429V3.57143C1.71429 2.58705 2.48357 1.78571 3.42857 1.78571H20.5714C21.5164 1.78571 22.2857 2.58705 22.2857 3.57143V17.8571ZM12 5.35714C10.1089 5.35714 8.57143 6.95871 8.57143 8.92857C8.57143 10.8984 10.1062 12.5 12 12.5C13.8938 12.5 15.4286 10.9012 15.4286 8.92857C15.4286 6.95591 13.8911 5.35714 12 5.35714ZM12 10.7143C11.0571 10.7143 10.2857 9.91071 10.2857 8.92857C10.2857 7.94643 11.055 7.14286 12 7.14286C12.945 7.14286 13.7143 7.9442 13.7143 8.92857C13.7143 9.91295 12.9429 10.7143 12 10.7143Z" />
+              </svg>
+            </div>
+          ) : (
+            thumbnailUrl && (
+              <Image
+                className={classNames(
+                  "bg-profile-pic-placeholder bg-no-repeat bg-center rounded",
+                  {
+                    "bg-[length:50%_50%]": isMobile,
+                  }
+                )}
+                src={thumbnailUrl}
+                alt=""
+                width={isMobile ? "150" : "48"}
+                height={isMobile ? "150" : "48"}
+              />
+            )
+          )}
+          <div className="absolute top-0 w-full flex items-start justify-between p-3 sm:hidden">
+            <div />
+            <div>
+              {/* <UserPlusIcon className="h-6 w-6 text-gray-200 m-3" aria-hidden="true" onClick={openSharing} /> */}
+              <Icon
+                name="addUser"
+                aria-hidden="true"
+                className="h-6 w-6 text-gray-200 sm:text-teal-300"
+                onClick={openSharing}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="flex-1 min-w-0 w-full px-5 pt-5 pb-3">
+          <div className="flex justify-between text-gray-900 dark:text-gray-100">
+            <div>
+              <div className="text-base font-medium break-all">
+                {patient?.name || "-"}
+              </div>
+              <div className="flex text-md text-gray-800 dark:text-gray-200 truncate font-normal mt-2">
+                <div>
+                  {patient?.age}
+                  {getGender(patient?.gender)?.shortLabel}
+                </div>
+                <div
+                  title={patient?.patient_id}
+                  className="pl-5 break-all whitespace-pre-wrap"
+                >
+                  {patient?.patient_id?.slice(0, 15)}
+                </div>
+              </div>
+            </div>
+            <div title={'radiologist report available'}>
+              {((!!unreadCount && !isSelected) || hasReport) && (
+                <div className="p-3 sm:bg-transparent rounded-lg">
+                  <div className="relative">
+                    {!!unreadCount && !isSelected && hasAIReport ? (
+                      <div title="unread messages">
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            className={classNames(
+                              "fill-teal-300 sm:fill-gray-400"
+                            )}
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M11.5191 3.12671H5.18764C3.98273 3.12671 3 4.16252 3 5.4001V15.7438C3 17.0138 3.98273 18.0172 5.18764 18.0172H8.4691V21.0429C8.4691 21.3973 8.84578 21.6031 9.12266 21.3924L13.392 18.0172H18.3142C19.5191 18.0172 20.5018 16.9814 20.5018 15.7438V11.9986H18.8912V15.8087C18.8912 16.1239 18.6433 16.3851 18.3442 16.3851H12.8751L10.1406 18.5468V16.3851H5.2184C4.91931 16.3851 4.67149 16.1239 4.67149 15.8087V5.43252C4.67149 5.11728 4.91931 4.85607 5.2184 4.85607H11.5191V3.12671Z"
+                            fill=""
+                          />
+                          <circle
+                            className={classNames(
+                              "fill-teal-300 sm:fill-teal-400 group-hover:!fill-teal-300"
+                            )}
+                            cx="17.8395"
+                            cy="5.67936"
+                            r="3.16031"
+                          />
+                        </svg>
+                      </div>
+                    ) : hasAIReport ? (
+                      <div title="Qure.ai report available">
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            className="fill-teal-200 sm:fill-gray-400"
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M8.18363 3C6.9732 3 5.99219 3.96215 5.99219 5.1493V8.10336L7.63577 8.18554V5.1493C7.63577 4.85243 7.88094 4.61198 8.18363 4.61198H13.6622V7.2986C13.6622 7.89302 14.1519 8.37325 14.758 8.37325H17.4973V18.0451C17.4973 18.3406 17.2507 18.5824 16.9494 18.5824H15.0949V20.19H8.04233C8.08905 20.1929 8.13616 20.1944 8.18363 20.1944H16.9494C18.1581 20.1944 19.1409 19.2306 19.1409 18.0451V8.18855C19.1409 7.61764 18.9114 7.0736 18.5005 6.6706L15.3983 3.62968C14.9874 3.22645 14.4327 3 13.8506 3H8.18363Z"
+                            fill="#9EA3A8"
+                          />
+                          <path
+                            className="fill-teal-200 sm:fill-brand-peach"
+                            fillRule="evenodd"
+                            clipRule="evenodd"
+                            d="M11.0297 10.8435C11.0299 10.8863 11.03 10.9291 11.03 10.9718L11.0066 10.9808C10.9979 10.9712 10.9891 10.9618 10.9803 10.9523C10.9618 10.9324 10.9433 10.9125 10.9258 10.8918C10.6634 10.5792 10.3486 10.3361 9.97168 10.1803C9.29898 9.90099 8.59973 9.8753 7.9003 10.0209C6.58471 10.295 5.73264 11.1165 5.27068 12.3639C5.04154 12.9825 4.98595 13.6306 5.0028 14.2868C5.01713 14.8402 5.09597 15.3833 5.2947 15.9025C5.63735 16.7972 6.21766 17.4703 7.12164 17.8246C7.71261 18.0561 8.3274 18.0794 8.95033 17.9977C9.75281 17.8924 10.422 17.5439 10.9375 16.9109C10.953 16.8918 10.9701 16.8739 10.9871 16.856C10.9951 16.8477 11.003 16.8393 11.0109 16.8309L11.0378 16.8408V19.484C11.357 19.2776 11.6702 19.2747 11.9977 19.4168C11.9986 19.3996 11.9996 19.3846 12.0004 19.371C12.0021 19.3438 12.0034 19.3226 12.0034 19.3016V10.6109C12.0047 10.5656 12.0006 10.5204 11.9912 10.476C11.9354 10.2475 11.7041 10.0949 11.4573 10.1256C11.2106 10.1564 11.0333 10.3468 11.03 10.5872C11.029 10.6726 11.0294 10.758 11.0297 10.8435ZM11.0418 13.8138C11.0376 13.7269 11.0354 13.6314 11.0332 13.5302C11.0278 13.2888 11.0217 13.0144 10.9837 12.7447C10.8815 12.0244 10.5206 11.4573 9.87639 11.103C9.35205 10.8146 8.77794 10.769 8.20188 10.8626C7.29442 11.0102 6.68156 11.5568 6.30753 12.3834C6.08323 12.8766 6.00595 13.404 5.9951 13.9426C5.98232 14.5574 6.04527 15.1606 6.29185 15.7296C6.55915 16.3467 6.98237 16.8122 7.62932 17.0394C8.06688 17.1929 8.51528 17.1781 8.96698 17.1139C10.3261 16.921 10.9123 15.8089 11.0049 14.928C11.0288 14.7017 11.0315 14.4731 11.0346 14.2158C11.0361 14.0898 11.0376 13.9568 11.0418 13.8138ZM11.8315 19.6717C11.7619 19.6384 11.6859 19.6212 11.6089 19.6213C11.3846 19.6189 11.1882 19.7401 11.1103 19.9345C11.0302 20.1327 11.0583 20.3415 11.2416 20.5048C11.3436 20.5957 11.4399 20.6933 11.5362 20.7908C11.5778 20.833 11.6193 20.8751 11.6614 20.9167C11.9016 21.1542 12.1832 21.1544 12.4242 20.9167L12.8372 20.5114C12.9344 20.4162 13.0318 20.321 13.1291 20.2259C13.3445 20.0154 13.5599 19.8049 13.7738 19.5931C13.8406 19.5295 13.886 19.4463 13.9036 19.3553C13.9213 19.2642 13.9103 19.1699 13.8722 19.0855C13.7302 18.7777 13.3381 18.7062 13.0907 18.9457C12.9147 19.1161 12.7395 19.2876 12.5643 19.459C12.4407 19.5799 12.3172 19.7008 12.1934 19.8213C12.1065 19.9061 12.0882 19.9042 12.0114 19.8133C11.9625 19.7532 11.901 19.7049 11.8315 19.6717Z"
+                            fill="#FF7869"
+                          />
+                        </svg>
+                      </div>
+                    ) : (
+                      <div>
+                        <svg
+                        width="40"
+                        height="40"
+                        viewBox="0 0 40 40"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M15 13.125C15 11.9513 15.9699 11 17.1667 11H22.7695C23.3451 11 23.8935 11.2239 24.2997 11.6226L27.3669 14.6291C27.7732 15.0275 28 15.5654 28 16.1299V25.875C28 27.0471 27.0284 28 25.8333 28H17.1667C15.9699 28 15 27.0471 15 25.875V13.125ZM26.375 25.875V16.3125H23.6667C23.0674 16.3125 22.5833 15.8377 22.5833 15.25V12.5938H17.1667C16.8674 12.5938 16.625 12.8315 16.625 13.125V25.875C16.625 26.1672 16.8674 26.4062 17.1667 26.4062H25.8333C26.1313 26.4062 26.375 26.1672 26.375 25.875Z"
+                          fill="#008280"
+                        />
+                        <rect
+                          x="14"
+                          y="19"
+                          width="7"
+                          height="9"
+                          className={classNames("fill-gray-100 dark:fill-gray-900 group-hover:fill-[#008280]/10", {
+                            "dark:!fill-gray-700 !fill-gray-300": isSelected,
+                          })}
+                        />
+                        <path
+                          d="M15.8193 26.8662C16.2451 27.292 16.9404 27.292 17.3662 26.8662L22.3662 21.8662C22.792 21.4404 22.792 20.7451 22.3662 20.3193C21.9404 19.8936 21.2451 19.8936 20.8193 20.3193L16.5928 24.5459L14.8662 22.8193C14.4404 22.3936 13.7451 22.3936 13.3193 22.8193C12.8936 23.2451 12.8936 23.9404 13.3193 24.3662L15.8193 26.8662Z"
+                          className='fill-[#008280] dark:fill-brand-peach'
+                        />
+                      </svg>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )} 
+            </div>
+          </div>
+          <div className="flex flex-wrap mt-2">
+            {/* {Object.keys(findings)?.map((finding) => {
+                                return <ReportTags status={aiInference} findings={finding} is_positive={findings[finding]} usecase={usecase}/>
+                            })}    */}
+            {worklistConfig &&
+              worklistTags.map((tag, index) => {
+                return (
+                  <ReportTags
+                    key={index}
+                    status={aiInference}
+                    tag={tag}
+                    labelMappings={labelMappings}
+                    tagsList={tagsList}
+                  />
+                );
+              })}
+          </div>
+          <div className="flex justify-end text-sm text-gray-600 dark:text-gray-400 font-normal">
+            {uploadSource} {uploadSource && "|"} {createdDate}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PatientCard;
