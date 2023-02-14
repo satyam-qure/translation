@@ -26,4 +26,4 @@ jobs:
     steps:
       - name: Dump GitHub context
         id: github_context_step
-        run: ls /home/runner/work/translation
+        run: echo $(ls /home/runner/work/translation)
