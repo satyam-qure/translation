@@ -1,15 +1,14 @@
-import { Inter } from '@next/font/google'
-import { useTranslation } from 'react-i18next'
+import { Inter } from "@next/font/google";
+import { useTranslation } from "react-i18next";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-
-  const {t}=useTranslation()
+  const { t } = useTranslation();
   return (
     <>
-      <p>{t("Dashboard")}</p>
-      <p>{t("Worklist")}</p>
+      <p>{t("dashboard")}</p>
+      <p>{t("worklist")}</p>
     </>
-  )
+  );
 }

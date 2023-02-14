@@ -5,11 +5,11 @@
 
   "upload": {  
     "type": "json",
-    "files": "locales/en.json"         
+    "files": "public/locales/en/translation.json"         
   },
   
   "download": {
-    "files": "locales/${lang}.json"
+    "files": "public/locales/${lang}/translation.json"
   }
   
 
