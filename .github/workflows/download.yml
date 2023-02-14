@@ -1,8 +1,6 @@
 name: Download from Localazy
 on:
   push:
-    branches:
-      - main
     tags:
       - "v*"
 
@@ -18,6 +16,5 @@ jobs:
           write_key: ${{ secrets.LOCALAZY_WRITE_KEY }}
 
       - run: |
-          # Test that localized files were downloaded by listing 
-          # the content of locales folder.
+          # Test that localized files were downloaded by listing the content of locales folder.
           ls locales/*.json
