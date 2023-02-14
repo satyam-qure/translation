@@ -1,9 +1,9 @@
 {
     "dashboard": "Dashboard",
-    "description": "description",
+    "description": "Description",
     "worklist": "Worklist",
     "new":"New",
-    "test":"test",
-    "hi":"holla",
-    "qure":"qure"
+    "test":"Test",
+    "hi":"Hi",
+    "qure":"Qure"
   }
