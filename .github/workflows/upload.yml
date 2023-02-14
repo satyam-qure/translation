@@ -1,8 +1,10 @@
 name: Upload to Localazy
-on: 
+on:
   push:
-    paths: 
-      - 'locales/en.json'
+  branch:
+    - main
+  paths:
+    - "locales/en.json"
 
 jobs:
   localazy-upload:
