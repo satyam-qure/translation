@@ -8,14 +8,6 @@
     "start": "next start",
     "lint": "next lint"
   },
-  "husky": {
-    "hooks": {
-      "applypatch-msg": "echo \"[Husky] applypatch-msg\"",
-    "pre-applypatch": "echo \"[Husky] pre-applypatch\"",
-    "post-applypatch": "echo \"[Husky] post-applypatch\"",
-    "pre-commit": "echo \"[Husky] pre-commit\""
-    }
-  },
   "dependencies": {
     "@localazy/cli": "^1.7.1",
     "@next/font": "13.1.6",
@@ -24,7 +16,6 @@
     "@types/react-dom": "18.0.10",
     "eslint": "8.34.0",
     "eslint-config-next": "13.1.6",
-    "husky": "^8.0.3",
     "i18next": "^22.4.9",
     "i18next-browser-languagedetector": "^7.0.1",
     "i18next-http-backend": "^2.1.1",
