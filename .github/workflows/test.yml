@@ -21,6 +21,8 @@ jobs:
 
       - name: Upload strings to Localazy
         uses: localazy/upload@v1
+        paths:
+          - "locales/en.json"
         with:
           read_key: ${{ secrets.LOCALAZY_READ_KEY }}
           write_key: ${{ secrets.LOCALAZY_WRITE_KEY }}
