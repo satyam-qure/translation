@@ -9,11 +9,6 @@
     "lint": "next lint",
     "prepare": "husky install"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "localazy download && git add -A ."
-    }
-  },
   "dependencies": {
     "@localazy/cli": "^1.7.1",
     "@next/font": "13.1.6",
